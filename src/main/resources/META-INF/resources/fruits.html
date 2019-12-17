@@ -36,6 +36,18 @@
             }
           }).then(_success, _error);
         };
+        
+        //HTTP POST methods for add fruits
+        $scope.get = function () {
+         $http({
+            method: 'GET',
+            url: '/fruits/' + $scope.form.name2
+          }).then(function successCallback(response) {
+            $scope.fruits = response.data;
+          }, function errorCallback(response) {
+            console.log(response.statusText);
+          });
+        };
 
         /* Private Methods */
         //HTTP GET- get all fruits collection
@@ -70,7 +82,7 @@
 <body ng-app="FruitManagement" ng-controller="FruitManagementController">
 
 <div class="container">
-    <h1>REST Service - Fruit</h1>
+    <h1>Fruit Service</h1>
 
     <h3>Add a fruit</h3>
     <form ng-submit="add()">
@@ -83,7 +95,15 @@
         <input type="submit" value="Save"/>
     </form>
 
-    <h3>Fruit List</h3>
+    <h3>Get a fruit</h3>
+    <form ng-submit="get()">
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Name" ng-model="form.name2" size="60"/></div>
+        </div>
+        <input type="submit" value="Load"/>
+    </form>
+
+    <h3>All Fruits</h3>
     <div class="row">
         <div class="col-4">Name</div>
         <div class="col-8">Description</div>
