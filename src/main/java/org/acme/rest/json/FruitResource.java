@@ -44,6 +44,19 @@ public class FruitResource {
     }
     
     @GET
+    @Path("/memory")
+    public String getMemoryUtilization() {
+    	long before_total = Runtime.getRuntime().totalMemory();
+    	long before_free = Runtime.getRuntime().freeMemory();
+    	System.gc();
+    	long after_total = Runtime.getRuntime().totalMemory();
+    	long after_free = Runtime.getRuntime().freeMemory();
+    	return String.format("memory: total (%d -> %d), free (%d -> %d), used (%d -> %d); size (%d)",
+    			before_total, after_total, before_free, after_free, before_total - before_free, after_total - after_free, fruits.size());
+    	
+    }
+    
+    @GET
     public Set<FruitPutRequest> get() {
     	Set<FruitPutRequest> set = new HashSet<>();
     	for (Fruit f : fruits.values()) {
