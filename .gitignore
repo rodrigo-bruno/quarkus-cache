@@ -1,6 +1,12 @@
 # vim
 editinfo
 
+# saved builds
+builds/
+
+# log files
+*.log
+
 # Eclipse
 .project
 .classpath
