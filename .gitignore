@@ -11,6 +11,7 @@ builds/
 .project
 .classpath
 .settings/
+.metadata/
 bin/
 
 # IntelliJ
