@@ -1,5 +1,8 @@
 package org.acme.rest.json;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,6 +24,8 @@ import org.jboss.resteasy.annotations.jaxrs.PathParam;
 @Consumes(MediaType.APPLICATION_JSON)
 public class FruitResource {
 
+	private static final String localDB = "/home/rbruno/git/quarkus-cache/quarkus-cache/jmeter_db.csv";
+	
     private Map<String,Fruit> fruits = Collections.synchronizedMap(new HashMapStringFruit());
 
     public FruitResource() {
@@ -44,15 +49,27 @@ public class FruitResource {
     }
     
     @GET
+    @Path("/initialize")
+    public String initialize() {
+    	try(BufferedReader br = new BufferedReader(new FileReader(localDB))) {
+    	    for(String line; (line = br.readLine()) != null; ) {
+    	        String[] splits = line.replace("\"","").split(",");
+    	        fruits.put(splits[0], new Fruit(splits[0],splits[1]));
+    	    }
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return String.format("entries: %d\n%s", fruits.size(), getMemoryUtilization());
+    	
+    }
+    
+    @GET
     @Path("/memory")
     public String getMemoryUtilization() {
-    	long before_total = Runtime.getRuntime().totalMemory();
-    	long before_free = Runtime.getRuntime().freeMemory();
     	System.gc();
-    	long after_total = Runtime.getRuntime().totalMemory();
-    	long after_free = Runtime.getRuntime().freeMemory();
-    	return String.format("memory: total (%d -> %d), free (%d -> %d), used (%d -> %d); size (%d)",
-    			before_total, after_total, before_free, after_free, before_total - before_free, after_total - after_free, fruits.size());
+    	long total = Runtime.getRuntime().totalMemory();
+    	long free = Runtime.getRuntime().freeMemory();
+    	return String.format("memory: total %d, free %d, used %d;", total, free, total - free);
     	
     }
     
