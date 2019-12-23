@@ -11,4 +11,10 @@ public class Rating {
 		this.numVotes = numVotes;
 		
 	}
+	
+	public String toString() {
+		return String.format("tconst: %s\n"
+				+ "averageRating: %s\n"
+				+ "numVotes: %s", tconst, averageRating, numVotes);
+	}
 }

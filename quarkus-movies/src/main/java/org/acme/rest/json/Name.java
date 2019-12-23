@@ -18,4 +18,13 @@ public class Name {
 		this.primaryProfession = primaryProfession;
 		this.knownForTitles = knownForTitles;
 	}
+	
+	public String toString() {
+		return String.format("nconst: %s\n"
+				+ "primaryName: %s\n"
+				+ "birthYear: %s\n"
+				+ "deathYear: %s\n"
+				+ "primaryProfession: %s\n"
+				+ "knownForTitles: %s", nconst, primaryName, birthYear, deathYear, primaryProfession, knownForTitles);
+	}
 }

@@ -25,4 +25,17 @@ public class Title {
         this.runtimeMinutes = runtimeMinutes;
         this.genres = genres;
     }
+    
+    public String toString() {
+		return String.format("tconst: %s\n"
+				+ "titleType: %s\n"
+				+ "primaryTitle: %s\n"
+				+ "originalTitle: %s\n"
+				+ "isAdult: %s\n"
+				+ "startYear: %s\n"
+				+ "endYear: %s\n"
+				+ "runtimeMinutes: %s\n"
+				+ "genres: %s", tconst, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres);
+    }
+    
 }
