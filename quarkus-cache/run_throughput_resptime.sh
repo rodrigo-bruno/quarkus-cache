@@ -9,7 +9,8 @@ ln -s $dataset jmeter_db.csv
 
 function start_runner {
     runner=builds/$build/rest-json-quickstart-1.0-SNAPSHOT-runner
-    $runner &> runner.log &
+    echo "########## testing $build..."
+    $runner &> runner-$build.log &
     echo $! > runner.pid
 }
 
@@ -21,7 +22,8 @@ function stop_runner {
 for build in vanilla inlined
 do
     start_runner
-    for i in 1 2 4 8 16 32 64 128
+    #for i in 1 2 4 8 16 32 64 128
+    for i in 32
     do
         for j in Write Read
         do
