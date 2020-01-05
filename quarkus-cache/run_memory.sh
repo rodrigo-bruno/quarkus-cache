@@ -16,16 +16,17 @@ function initialize {
 for build in vanilla inlined
 do
     runner=builds/$build/rest-json-quickstart-1.0-SNAPSHOT-runner
-    for i in 1000 10000 100000 1000000
+    for i in 1M 2M 4M 8M 12M 16M
     do
         echo "########## testing $build with $i entries..."
         rm jmeter_db.csv &> /dev/null
         ln -s jmeter_db_$i.csv jmeter_db.csv
-        $runner &> runner.log &
+        $runner -Xmx8g &> runner-$build-$i.log &
         echo $! > runner.pid
-        initialize
+        initialize | tee runner-$build-$i.mem
         kill `cat runner.pid`
         rm runner.pid
         echo "########## testing $build with $i entries... done"
+        sleep 1
     done
 done

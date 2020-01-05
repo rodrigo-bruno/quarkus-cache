@@ -22,13 +22,13 @@ function stop_runner {
 for build in vanilla inlined
 do
     start_runner
-    #for i in 1 2 4 8 16 32 64 128
-    for i in 32
+    for i in 1 2 4 8 16 32 64 128
     do
         for j in Write Read
         do
-            echo "$j $i"
-            jmeter -n -l jmeter.log  -t "throughput_resptime/$j$i.jmx" | grep "summary ="
+            tag=$build-$j-$i
+            echo "$tag"
+            jmeter -n -l jmeter.log  -t "throughput_resptime/$j$i.jmx" | grep "summary =" | tee runner-$tag.tput
         done
     done
     stop_runner
