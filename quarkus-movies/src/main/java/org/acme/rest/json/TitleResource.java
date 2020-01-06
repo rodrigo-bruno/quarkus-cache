@@ -40,9 +40,8 @@ public class TitleResource {
     private Map<String, Session> sessions = Collections.synchronizedMap(new HashMapStringSession());
     // principals.get(tconst).get(ordering) -> Principal
     private Map<String, List<Principal>> principals = Collections.synchronizedMap(new HashMap<>()); // TODO - inline list?
+    private ArrayList<String> titlesSortedByRating = new ArrayList<>();
     
-    private static final String localDB = "/home/rbruno/Downloads/imdb-lite";
-
     public TitleResource() { }
 
     // Query 1 - given a title id, get title description.
@@ -108,7 +107,55 @@ public class TitleResource {
 			set.add(new EntryDescription(user, "user not found"));	
 		}
 		return set;    	
-    }    
+    }
+    
+    // Query 5 - given a user id and a title identifier, add to list of watched
+    @GET
+    @Path("/watched")
+    public Set<EntryDescription> watched(@QueryParam("user") String user, @QueryParam("tconst") String tconst) {
+		Set<EntryDescription> set = new HashSet<>();
+		users.get(user).userRatings.put(tconst, -1);
+		set.add(new EntryDescription(user, "updated watched"));
+		return set;    	
+    }
+    
+    // Query 6 - given a user id, a title identifier, and a rating, assign rate to title
+    @GET
+    @Path("/rate")
+    public Set<EntryDescription> rate(@QueryParam("user") String user, @QueryParam("tconst") String tconst, @QueryParam("rate") String rate) {
+		Set<EntryDescription> set = new HashSet<>();
+		users.get(user).userRatings.put(tconst, Integer.parseInt(rate));
+		set.add(new EntryDescription(user, "updated rating"));
+		return set;    	
+    }
+    
+    // Query 7 - given a user id, give 10 title id recommendations
+    @GET
+    @Path("/recommendation")
+    public Set<EntryDescription> recommendation(@QueryParam("user") String user) {
+		Set<EntryDescription> set = new HashSet<>();
+		Set<String> genres = new HashSet<>();
+		
+		for (Map.Entry<String, Integer> entry : users.get(user).userRatings.entrySet()) {
+			if (entry.getValue() < 3) {
+				continue;
+			}
+			Title title = titles.get(entry.getKey());
+			genres.add(title.genres.get(0));
+		}
+		
+		for (String nconst : titlesSortedByRating) {
+			String genre = titles.get(nconst).genres.get(0);
+			if (genres.contains(genre)) {
+				set.add(new EntryDescription(genre, nconst));
+			}
+			if (set.size() >= 10) {
+				break;
+			}
+		}
+		return set;    	
+    }
+    
     // Query N - given a name id, get name description.
     @GET
     @Path("/names")
@@ -120,7 +167,7 @@ public class TitleResource {
 		return set;	
     }
     
-    // Query 4 - given a title id, get principals
+    // Query N+1 - given a title id, get principals
     @GET
     @Path("/principals")
     public Set<EntryDescription> getPrincipal(@QueryParam("tconst") String tconst) {
@@ -138,7 +185,7 @@ public class TitleResource {
     }
     
     
-    // Query 5 - given a year, get title ids sorted by rating
+    // Query N+2 - given a year, get title ids sorted by rating
     @GET
     @Path("/titlesyear/{year}")
     public List<TitleDescriptionRating> getTitlesYear(@PathParam("year") String year) {
@@ -163,7 +210,7 @@ public class TitleResource {
 		return set;
     }
     
-    // Query 6 - given a genre, get title ids sorted by rating
+    // Query N+3 - given a genre, get title ids sorted by rating
     @GET
     @Path("/titlesgenre/{genre}")
     public List<TitleDescriptionRating> getTitlesGenre(@PathParam("genre") String genre) {
@@ -208,10 +255,10 @@ public class TitleResource {
     	
     }
 
-    private long loadTitleBasics() {
+    private long loadTitleBasics(String dbpath) {
     	long mem_before = usedMemory();
     	
-    	try(BufferedReader br = new BufferedReader(new FileReader(localDB + "/title.basics.tsv"))) {
+    	try(BufferedReader br = new BufferedReader(new FileReader(dbpath + "/title.basics.tsv"))) {
     	    for(String line; (line = br.readLine()) != null; ) {
     	        String[] splits = line.split("\t");
     	        titles.put(splits[0], new Title(
@@ -224,6 +271,7 @@ public class TitleResource {
 						splits[6],
 						splits[7],
 						Arrays.asList(splits[8].split(","))));
+    	        titlesSortedByRating.add(splits[0]);
     	    }
     	} catch (Exception e) {
 			e.printStackTrace();
@@ -232,10 +280,10 @@ public class TitleResource {
     	return usedMemory() - mem_before;
     }
     
-    private long loadNameBasics() {
+    private long loadNameBasics(String dbpath) {
     	long mem_before = usedMemory();
     	
-    	try(BufferedReader br = new BufferedReader(new FileReader(localDB + "/name.basics.tsv"))) {
+    	try(BufferedReader br = new BufferedReader(new FileReader(dbpath + "/name.basics.tsv"))) {
     	    for(String line; (line = br.readLine()) != null; ) {
     	        String[] splits = line.split("\t");
     	        names.put(splits[0], new Name(
@@ -253,10 +301,10 @@ public class TitleResource {
     	return usedMemory() - mem_before;
     }
     
-    public long loadTitleRatings() {
+    public long loadTitleRatings(String dbpath) {
     	long mem_before = usedMemory();
     	
-    	try(BufferedReader br = new BufferedReader(new FileReader(localDB + "/title.ratings.tsv"))) {
+    	try(BufferedReader br = new BufferedReader(new FileReader(dbpath + "/title.ratings.tsv"))) {
     	    for(String line; (line = br.readLine()) != null; ) {
     	        String[] splits = line.split("\t");
     	        ratings.put(splits[0], new Rating(
@@ -271,10 +319,10 @@ public class TitleResource {
     	return usedMemory() - mem_before;
     }
     
-    public long loadTitlePrincipals() {
+    public long loadTitlePrincipals(String dbpath) {
     	long mem_before = usedMemory();
     	
-    	try(BufferedReader br = new BufferedReader(new FileReader(localDB + "/title.principals.tsv"))) {
+    	try(BufferedReader br = new BufferedReader(new FileReader(dbpath + "/title.principals.tsv"))) {
     	    for(String line; (line = br.readLine()) != null; ) {
     	        String[] splits = line.split("\t");
     	        
@@ -297,10 +345,10 @@ public class TitleResource {
     	return usedMemory() - mem_before;
     }
     
-    public long loadUsers() {
+    public long loadUsers(String dbpath) {
     	long mem_before = usedMemory();
     	
-    	try(BufferedReader br = new BufferedReader(new FileReader(localDB + "/users.csv"))) {
+    	try(BufferedReader br = new BufferedReader(new FileReader(dbpath + "/users.csv"))) {
     	    for(String line; (line = br.readLine()) != null; ) {
     	        String[] splits = line.split(",");
     	        users.put(splits[0], new User(
@@ -310,23 +358,33 @@ public class TitleResource {
     	} catch (Exception e) {
 			e.printStackTrace();
 		}
-    	
+    	    	
     	return usedMemory() - mem_before;
     }
     
     @GET
     @Path("/init")
-    public String init() {
-    	long memoryTitles = loadTitleBasics();
-    	long memoryNames = loadNameBasics();
-    	long memoryRatings = loadTitleRatings();
-    	long memoryPrincipals = loadTitlePrincipals();
-    	long memoryUsers = loadUsers(); 
+    public String init(@QueryParam("dbpath") String dbpath) {
+    	long memoryTitles = loadTitleBasics(dbpath);
+    	long memoryNames = loadNameBasics(dbpath);
+    	long memoryRatings = loadTitleRatings(dbpath);
+    	long memoryPrincipals = loadTitlePrincipals(dbpath);
+    	long memoryUsers = loadUsers(dbpath); 
     	
     	int principalsCounter = 0;
     	for (List<Principal> list : principals.values()) {
     		principalsCounter += list.size();
     	}
+    	
+		Collections.sort(titlesSortedByRating, new Comparator<String>() {
+
+			@Override
+			public int compare(String o1, String o2) {
+				Float f1 = ratings.containsKey(o1)? Float.parseFloat(ratings.get(o1).averageRating) : 0;
+				Float f2 = ratings.containsKey(o2)? Float.parseFloat(ratings.get(o2).averageRating) : 0;
+				return Float.compare(f1, f2);
+			}
+		});
     	
     	return String.format("Loaded %d titles (%d MBs), %d names (%d MBs), %d rankings (%d MBs), %s principals (%d MBs) %s users (%d MBs).", 
     			titles.size(), memoryTitles, 
@@ -337,6 +395,6 @@ public class TitleResource {
     }
     
     public static void main(String[] args) throws Exception {
-    	System.out.println((new TitleResource()).init());
+    	System.out.println((new TitleResource()).init("/home/rbruno/Downloads/imdb-lite"));
     }
 }

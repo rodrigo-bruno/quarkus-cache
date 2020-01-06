@@ -23,7 +23,7 @@ for build in vanilla inlined
 do
     start_runner
     initialize
-    for query in Query1 Query2 Query3 Query4
+    for query in Query1 Query2 Query3 Query4 Query5 Query6 Query7
     do
         tag=$build-$query
         echo "$tag"
