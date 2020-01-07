@@ -369,7 +369,7 @@ public class TitleResource {
     	long memoryNames = loadNameBasics(dbpath);
     	long memoryRatings = loadTitleRatings(dbpath);
     	long memoryPrincipals = loadTitlePrincipals(dbpath);
-    	long memoryUsers = loadUsers(dbpath); 
+    	long memoryUsers = loadUsers(dbpath);
     	
     	int principalsCounter = 0;
     	for (List<Principal> list : principals.values()) {
@@ -394,7 +394,48 @@ public class TitleResource {
     			users.size(), memoryUsers);
     }
     
+    @GET
+    @Path("/dryinit")
+    public String dryinit(@QueryParam("dbpath") String dbpath) {
+    	System.out.println("Loading titles...");
+    	long memoryTitles = loadTitleBasics(dbpath);
+    	System.out.println("Loading titles... done = " + memoryTitles);
+    	titles.clear();
+    	
+    	System.out.println("Loading names...");
+    	long memoryNames = loadNameBasics(dbpath);
+    	System.out.println("Loading names... done = " + memoryNames);
+    	names.clear();
+    	
+    	System.out.println("Loading ratings...");
+    	long memoryRatings = loadTitleRatings(dbpath);
+    	System.out.println("Loading ratings... done = " + memoryRatings);
+    	ratings.clear();
+    	
+    	System.out.println("Loading principals...");
+    	long memoryPrincipals = loadTitlePrincipals(dbpath);
+    	System.out.println("Loading principals... done = " + memoryPrincipals);
+
+    	int principalsCounter = 0;
+    	for (List<Principal> list : principals.values()) {
+    		principalsCounter += list.size();
+    	}
+    	principals.clear();
+    	
+    	System.out.println("Loading users...");
+    	long memoryUsers = loadUsers(dbpath);
+    	System.out.println("Loading users... done = " + memoryUsers);
+    	users.clear();
+    	
+    	return String.format("Loaded %d titles (%d MBs), %d names (%d MBs), %d rankings (%d MBs), %s principals (%d MBs) %s users (%d MBs).", 
+    			titles.size(), memoryTitles, 
+    			names.size(), memoryNames, 
+    			ratings.size(), memoryRatings, 
+    			principalsCounter, memoryPrincipals, 
+    			users.size(), memoryUsers);
+    }
+    
     public static void main(String[] args) throws Exception {
-    	System.out.println((new TitleResource()).init("/home/rbruno/Downloads/imdb-lite"));
+    	System.out.println((new TitleResource()).dryinit("/home/rbruno/Downloads/imdb"));
     }
 }
