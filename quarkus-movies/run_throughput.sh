@@ -7,16 +7,19 @@ function start_runner {
     echo "########## testing $build..."
     $runner -Xmx8g &> runner-$build.log &
     echo $! > runner.pid
+    sleep 1
 }
 
 function stop_runner {
     kill `cat runner.pid`
     rm runner.pid
+    sleep 1
 }
 
 function initialize {
-    curl -s -i -X GET http://localhost:8080/movies/init
-        echo ""
+    #curl -s -i -X GET http://localhost:8080/movies/init?dbpath=/home/rbruno/Downloads/imdb-lite
+    curl -s -i -X GET http://localhost:8080/movies/init?dbpath=/home/rbruno/Downloads/imdb
+    echo ""
 }
 
 for build in vanilla inlined
