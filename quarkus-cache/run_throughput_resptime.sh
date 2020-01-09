@@ -2,7 +2,7 @@
 
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 
-dataset=jmeter_db_10000.csv
+dataset=jmeter_db_10K.csv
 
 rm jmeter_db.csv
 ln -s $dataset jmeter_db.csv

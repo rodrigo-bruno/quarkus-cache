@@ -7,4 +7,4 @@ if len(sys.argv) != 2:
     sys.exit(0)
 
 for i in range(0, int(sys.argv[1])):
-    print("\"fruit%d\",\"%d\"" % (i, i))
+    print("\"%d\",\"%d\",\"%d\"" % (i, i, i))

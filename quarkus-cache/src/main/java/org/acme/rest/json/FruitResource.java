@@ -29,8 +29,8 @@ public class FruitResource {
     private Map<String,Fruit> fruits = Collections.synchronizedMap(new HashMapStringFruit());
 
     public FruitResource() {
-        fruits.put("Apple", new Fruit("Apple", "Winter fruit"));
-        fruits.put("Pineapple", new Fruit("Pineapple", "Tropical fruit"));
+        fruits.put("Apple", new Fruit("Apple", 0, 0));
+        fruits.put("Pineapple", new Fruit("Pineapple", 1, 1));
     }
 
     @GET
@@ -41,7 +41,8 @@ public class FruitResource {
     	} else {
     		Set<FruitPutRequest> set = new HashSet<>();
     		if (fruits.containsKey(fruit.name)) {
-    			set.add(new FruitPutRequest(fruits.get(fruit.name).name, fruits.get(fruit.name).description));	
+    			Fruit f = fruits.get(fruit.name);
+    			set.add(new FruitPutRequest(f.name, f.x, f.y));	
     		}
     		return set;
     	}
@@ -54,7 +55,7 @@ public class FruitResource {
     	try(BufferedReader br = new BufferedReader(new FileReader(localDB))) {
     	    for(String line; (line = br.readLine()) != null; ) {
     	        String[] splits = line.replace("\"","").split(",");
-    	        fruits.put(splits[0], new Fruit(splits[0],splits[1]));
+    	        fruits.put(splits[0], new Fruit(splits[0], Integer.parseInt(splits[1]), Integer.parseInt(splits[2])));
     	    }
     	} catch (Exception e) {
 			e.printStackTrace();
@@ -77,14 +78,14 @@ public class FruitResource {
     public Set<FruitPutRequest> get() {
     	Set<FruitPutRequest> set = new HashSet<>();
     	for (Fruit f : fruits.values()) {
-    		set.add(new FruitPutRequest(f.name, f.description));
+    		set.add(new FruitPutRequest(f.name, f.x, f.y));
     	}
     	return set;
     }
 
     @POST
     public Set<FruitPutRequest> add(FruitPutRequest fruit) {
-        fruits.put(fruit.name, new Fruit(fruit.name, fruit.description));
+        fruits.put(fruit.name, new Fruit(fruit.name, fruit.x, fruit.y));
         Set<FruitPutRequest> set = new HashSet<>();
         set.add(fruit);	
         return set;
