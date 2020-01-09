@@ -109,23 +109,29 @@ public class TitleResource {
 		return set;
     }
 
-    // Query 5 - given a user id and a title identifier, add to list of watched
-    @GET
-    @Path("/watched")
-    public Set<EntryDescription> watched(@QueryParam("user") String user, @QueryParam("tconst") String tconst) {
-		Set<EntryDescription> set = new HashSet<>();
-		users.get(user).userRatings.put(tconst, -1);
-		set.add(new EntryDescription(user, "updated watched"));
-		return set;
-    }
-
-    // Query 6 - given a user id, a title identifier, and a rating, assign rate to title
+    // Query 5 - given a user id, a title identifier, and a rating, assign rate to title
     @GET
     @Path("/rate")
     public Set<EntryDescription> rate(@QueryParam("user") String user, @QueryParam("tconst") String tconst, @QueryParam("rate") String rate) {
 		Set<EntryDescription> set = new HashSet<>();
 		users.get(user).userRatings.put(tconst, Integer.parseInt(rate));
 		set.add(new EntryDescription(user, "updated rating"));
+		return set;
+    }
+    
+    // Query 6 - given a genre, get top 10 titles
+    @GET
+    @Path("/genre")
+    public List<EntryDescription> getTitlesGenre(@QueryParam("genre") String genre) {
+    	List<EntryDescription> set = new ArrayList<>();
+    	for (String title : titlesSortedByRating) {
+    		if (titles.get(title).genres.contains(genre)) {
+    			set.add(new EntryDescription(genre, title));
+    			if (set.size() == 3) {
+    				break;
+    			}
+    		}
+    	}
 		return set;
     }
 
@@ -193,31 +199,6 @@ public class TitleResource {
     	for (Title t : titles.values()) {
     		if (t.startYear.equals(year)) {
     			set.add(new TitleDescriptionRating(t.tconst, ratings.get(t.tconst).averageRating, t.toString()));
-    		}
-    	}
-		Collections.sort(set, new Comparator<TitleDescriptionRating>() {
-
-			@Override
-			public int compare(TitleDescriptionRating o1, TitleDescriptionRating o2) {
-				Float f1 = Float.parseFloat(o1.rating);
-				Float f2 = Float.parseFloat(o2.rating);
-				return Float.compare(f1, f2);
-			}
-		});
-
-		System.out.println(set.size());
-
-		return set;
-    }
-
-    // Query N+3 - given a genre, get title ids sorted by rating
-    @GET
-    @Path("/titlesgenre/{genre}")
-    public List<TitleDescriptionRating> getTitlesGenre(@PathParam("genre") String genre) {
-    	List<TitleDescriptionRating> set = new ArrayList<>();
-    	for (Title t : titles.values()) {
-    		if (t.genres.contains(genre)) {
-    			set.add(new TitleDescriptionRating(t.tconst, ratings.containsKey(t.tconst) ? ratings.get(t.tconst).averageRating : "0", t.toString()));
     		}
     	}
 		Collections.sort(set, new Comparator<TitleDescriptionRating>() {
@@ -433,6 +414,6 @@ public class TitleResource {
     }
 
     public static void main(String[] args) throws Exception {
-    	System.out.println((new TitleResource()).dryinit("/home/rbruno/Downloads/imdb"));
+    	System.out.println((new TitleResource()).dryinit("/home/rbruno/Downloads/imdb-lite"));
     }
 }
