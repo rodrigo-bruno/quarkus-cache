@@ -7,4 +7,4 @@ if len(sys.argv) != 2:
     sys.exit(0)
 
 for i in range(0, int(sys.argv[1])):
-    print("\"user%d\",\"pass%d\"" % (i, i))
+    print("\"u%d\",\"p%d\"" % (i, i))

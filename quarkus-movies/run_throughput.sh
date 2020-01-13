@@ -17,8 +17,8 @@ function stop_runner {
 }
 
 function initialize {
-    #curl -s -i -X GET http://localhost:8080/movies/init?dbpath=/home/rbruno/Downloads/imdb-lite
-    curl -s -i -X GET http://localhost:8080/movies/init?dbpath=/home/rbruno/Downloads/imdb
+    curl -s -i -X GET http://localhost:8080/movies/init?dbpath=/home/rbruno/Downloads/imdb-lite
+    #curl -s -i -X GET http://localhost:8080/movies/init?dbpath=/home/rbruno/Downloads/imdb
     echo ""
 }
 

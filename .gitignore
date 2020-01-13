@@ -1,3 +1,12 @@
+
+# temorary file (gets overriden every build)
+quarkus-cache/src/main/resources/application.properties
+quarkus-movies/src/main/resources/application.properties
+
+# input files
+quarkus-movies/*.input
+quarkus-cache/jmeter_db_*.csv
+
 # vim
 editinfo
 
