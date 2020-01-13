@@ -16,6 +16,14 @@ function build_vanilla {
     cp target/rest-json-quickstart-1.0-SNAPSHOT-runner build.log   builds/vanilla/
 }
 
+function build_ee {
+    export GRAALVM_HOME=/home/rbruno/Downloads/graalvm-ee-complete-19.2.0
+    cp src/main/resources/application.properties.vanilla src/main/resources/application.properties
+    ./mvnw package -Pnative 2>&1 | tee build.log
+    cp target/rest-json-quickstart-1.0-SNAPSHOT-runner build.log   builds/ee/
+}
+
 build_inlined
 build_vanilla
+#build_ee
 #./mvnw package quarkus:dev  2>&1 | tee build.log
